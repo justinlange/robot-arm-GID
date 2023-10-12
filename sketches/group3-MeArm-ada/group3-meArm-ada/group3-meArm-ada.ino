@@ -1,16 +1,16 @@
 #include <Servo.h>
 
 // 🤖 Classy Servo! 🎩
-// This class helps keep track of our servo's mood (positions and capabilities) and allows them to dance
+// This class helps keep track of each servo's mood (positions and capabilities) and allows them to dance
 class ServoInfo {
 public:
-  Servo servo;  // The physical entity, our servo, awaits our commands!
+  Servo servo;  
   uint8_t arduinoControlPin;  // The PWM pin on the servo control board pin on the PWM
   int restPos;  // A good starting, or resting position for each Servo 💤
-  int maxDegForward;  // The forward limit, a boundary not to trespass.
-  int maxDegBackward;  // The backward limit, safeguarding from straining/bumping against screws or other obsticals in your build. 
-  int currentPos;  // The present moment of the servo, here and now. 🧘
-  int lastPos;  // Lets us compute whether the servo moved or not. Since Servos are an "open loop" system, 
+  int maxDegForward;   // The forward limit.
+  int maxDegBackward;  // The backward limit, safeguarding from straining/bumping against screws or other obsticals in our build. 
+  int currentPos, lastPos;  
+                // Lets us compute whether the servo moved or not. Since Servos are an "open loop" system, 
                 // meaning they can't tell us anything about their position, with these two variables we can keep
                 // track of where the servo is *and* know whether it moved since its last update. This will come in
                 // handy when we're doing more advanced projects in a few weeks.
