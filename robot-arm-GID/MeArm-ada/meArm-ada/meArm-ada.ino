@@ -1,82 +1,99 @@
 #include <Servo.h>
 
-//for GID Cyber Physical Systems, London, Fall 2023, based off of https://www.hackster.io/benbobgray/mearm-robot-arm-your-robot-v1-0-326702#code
-
+// 🤖 Classy Servo! 🎩
+// This class helps keep track of our servo's mood (positions and capabilities) and allows them to dance
 class ServoInfo {
 public:
-  Servo servo;
-  uint8_t arduinoControlPin;
-  int restPos;
-  int maxDegForward;
-  int maxDegBackward;
-  int currentPos;
-  int lastPos;
+  Servo servo;  // The physical entity, our servo, awaits our commands!
+  uint8_t arduinoControlPin;  // The PWM pin on the servo control board pin on the PWM
+  int restPos;  // A good starting, or resting position for each Servo 💤
+  int maxDegForward;  // The forward limit, a boundary not to trespass.
+  int maxDegBackward;  // The backward limit, safeguarding from straining/bumping against screws or other obsticals in your build. 
+  int currentPos;  // The present moment of the servo, here and now. 🧘
+  int lastPos;  // Lets us compute whether the servo moved or not. Since Servos are an "open loop" system, 
+                // meaning they can't tell us anything about their position, with these two variables we can keep
+                // track of where the servo is *and* know whether it moved since its last update. This will come in
+                // handy when we're doing more advanced projects in a few weeks.
 
+
+  // Constructor magic! ✨ We "construct" each instance of the servo in the section just below the robot arms,
+  // which is where you'll make each object different if needs to be
   ServoInfo(uint8_t pin, int rPos, int maxF, int maxB, int cPos) :
     arduinoControlPin(pin), restPos(rPos), maxDegForward(maxF),
     maxDegBackward(maxB), currentPos(cPos), lastPos(cPos) {}
 
+  // When asked to move, we ensure the destination is within safe bounds.
   void updatePosition(int newPos) {
     if(newPos >= maxDegBackward && newPos <= maxDegForward) {
-      lastPos = currentPos;
-      currentPos = newPos;
-      servo.write(newPos);
+      lastPos = currentPos;  // Remembrance of the place we leave.
+      currentPos = newPos;  // Embracing the new position.
+      servo.write(newPos);  // Commanding the physical to alter its state.
+      //Serial.print here -- let user know it moved 
     } else {
-      Serial.println("Error: Invalid Position");
+      Serial.println("Error: Invalid Position");  //Oopsie! Can't move  there. 
     }
   }
 };
 
+
+//🦾🦾🦾🦾🦾🦾🦾🦾🦾🦾
+//based on the pecularities of your particular build, you can set some safety limits here.
 ServoInfo spine(12, 90, 60, 120, 90);
-ServoInfo shoulder(13, 90, 60, 120, 90);
-ServoInfo elbow(14, 90, 60, 120, 90);
-ServoInfo claw(15, 90, 60, 120, 90);
+ServoInfo shoulder(13, 90, 60, 120, 90);   
+ServoInfo elbow(14, 90, 60, 120, 90);       
+ServoInfo claw(15, 90, 60, 120, 90);        
 
 ServoInfo servos[] = {spine, shoulder, elbow, claw};
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600);  // Opening the channel for chit-chat with Processing! 📡
   for(int i=0; i < 4; i++) {
-    servos[i].servo.attach(servos[i].arduinoControlPin);
-    servos[i].updatePosition(servos[i].restPos);
+    servos[i].servo.attach(servos[i].arduinoControlPin); // Connecting nerves to muscles! 💪
+    servos[i].updatePosition(servos[i].restPos);  // Start from a restful place! 🧘
   }
 }
 
+
+// 🔄 The Never-Ending Party! 🎊
+// loop() keeps our Arduino’s party going, checking for new messages and reacting to them!
+
 void loop() {
-  if (Serial.available() > 0) {
-    for(int i=0; i < 4; i++) {
-      int newPos = Serial.parseInt();
-      servos[i].updatePosition(newPos);
+  if (Serial.available() > 0) {  // When whispers of serial data flutter by...
+
+    for(int i=0; i < 4; i++) { // A message? For me?! 💌
+      int newPos = Serial.parseInt();    // read out a number
+      servos[i].updatePosition(newPos);  // Each servo, in turn, contemplates whether to move.
     }
     
-    char command = Serial.read();
-    switch (command) {
+    char command = Serial.read();  // Awaiting a single letter’s command from the serial stream.
+    switch (command) {  
       case 'd':
-        detachAllServos();
-        Serial.println("Servos Detached");
+        detachAllServos();  // cut power so we can move around the arm easily
+        Serial.println("Servos Detached");  
         break;
       case 'r':
-        attachAllServos();
-        Serial.println("Servos Reattached");
+        attachAllServos();  
+        Serial.println("Servos Reattached");  
         break;
       case '\n':
-        // You might report positions here if you want
+        // listening for The 'newline' character, which signals the end of the message  📜
         break;
       default:
-        Serial.println("Error: Invalid Command Received");
+        Serial.println("Error: Invalid Command Received");  // Something's not right... ❓
         break;
     }
   }
 }
+
 
 void detachAllServos() {
   for(int i=0; i < 4; i++) {
-    servos[i].servo.detach();
+    servos[i].servo.detach();  // Encouraging each servo to rest from its duties.
   }
 }
 
 void attachAllServos() {
   for(int i=0; i < 4; i++) {
-    servos[i].servo.attach(servos[i].arduinoControlPin);
+    servos[i].servo.attach(servos[i].arduinoControlPin);  // Urging the spirit back into the physical form.
   }
 }
