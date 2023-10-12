@@ -1,3 +1,6 @@
+#DEFINE SOLO_ARDUINO
+
+
 #include <Servo.h>
 
 // 🤖 Classy Servo! 🎩
@@ -57,14 +60,40 @@ void setup() {
 // 🔄 The Never-Ending Party! 🎊
 // loop() keeps our Arduino’s party going, checking for new messages and reacting to them!
 
+// #ifdef SOLO_ARDUINO
+//   long fakePosition = 90;
+// #endif
+
 void loop() {
+
+
+// #ifdef SOLO_ARDUINO
+
+//   fakePosition +=10;
+
+//   for(int i=0; i < 4; i++) { // A message? For me?! 💌
+//       int newPos = fakePosition % (i*45);  // read out a number
+//       servos[i].updatePosition(newPos);  // Each servo, in turn, contemplates whether to move.
+//       delay(300);
+// }
+
+// #endif
+
+
+  for(int i=0; i < 4; i++) { // A message? For me?! 💌
+      int newPos = Serial.parseInt();    // read out a number
+      servos[i].updatePosition(newPos);  // Each servo, in turn, contemplates whether to move.
+      delay(300);
+
+
   if (Serial.available() > 0) {  // When whispers of serial data flutter by...
 
     for(int i=0; i < 4; i++) { // A message? For me?! 💌
-      int newPos = Serial.parseInt();    // read out a number
+      int newPos = Serial.praseFloat();    // read out a number
       servos[i].updatePosition(newPos);  // Each servo, in turn, contemplates whether to move.
     }
     
+
     char command = Serial.read();  // Awaiting a single letter’s command from the serial stream.
     switch (command) {  
       case 'd':
@@ -84,6 +113,7 @@ void loop() {
     }
   }
 }
+
 
 
 void detachAllServos() {
